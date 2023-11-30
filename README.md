@@ -128,5 +128,11 @@ CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS    
  # LOGS
  docker logs cochinito
 
+
+# SI YA NO OCUPAMOS HAY QUE DENETER LOS SERVICIOS:
+ docker stop monguito
+ docker stop cochinito
+
+
  # REPASO DE LO QUE VIMOS:
   IR A IMAGES -> contenido_clase ![Alt text](image-1.png)
