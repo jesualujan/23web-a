@@ -10,7 +10,7 @@ const Animales = mongoose.model('Animals', new mongoose.Schema({
 
 const app = express()
 
-mongoose.connect('mongodb://jesua:password@monguitodos:27017/miapp?authSource=admin')
+mongoose.connect('mongodb://jesua:password@monguito:27017/miapp?authSource=admin')
 
 //mensaje de bienvenida
 app.get('/', async (req, res) => {
