@@ -1,12 +1,12 @@
 const express = require ('express')
 const mongoose = require ('mongoose')
 const colors = require('colors')
-const port = 3003;
+const port = 3000;
 
-const Animal = mongoose.model('Animal', new mongoose.Schema({
-  tipo: String,
-  estado: String,
-}))
+const Animales = mongoose.model('Animals', new mongoose.Schema({
+    tipo: String,
+    estado: String,
+  }))
 
 const app = express()
 
@@ -22,17 +22,17 @@ app.get('/', async (req, res) => {
 // buscar un animal
 app.get('/listar', async (req, res) => {
     console.log('listando... cochinitos...')
-    const animales = await Animal.find();
-    return res.send(animales)
+    const animals = await Animales.find();
+    return res.send(animals)
   })
 
 // crear un animal
 app.get('/crear', async (req, res) => {
     console.log('creando...')
-    await Animal.create({ tipo: 'Cochinito', estado: 'Feliz' })
-    await Animal.create({ tipo: 'Gatito', estado: 'Programando'})
-    await Animal.create({ tipo: 'Perrito', estado: 'Comiendo' })
-    await Animal.create({ tipo: 'Conejito', estado: 'Saltando' })
+    await Animales.create({ tipo: 'Cochinito', estado: 'Feliz' })
+    await Animales.create({ tipo: 'Gatito', estado: 'Programando'})
+    await Animalse.create({ tipo: 'Perrito', estado: 'Comiendo' })
+    await Animales.create({ tipo: 'Conejito', estado: 'Saltando' })
     res.status(200);
     return res.send('Created...')
   })
