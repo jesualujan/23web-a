@@ -1,3 +1,4 @@
+# ------------------ PRIMERA PARTE DE LA CLASE -----------------------
 # ACCEDER A NUESTRA CARPETA RAIZ DEL PROYECTO DE DOCKER Y HACER LO SIGUIENTE:
 # INICIAR NPM: 
           npm init --y
@@ -136,3 +137,164 @@ CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS    
 
  # REPASO DE LO QUE VIMOS:
   IR A IMAGES -> contenido_clase ![Alt text](image-1.png)
+
+
+  # ------------------ SEGUNDA PARTE: DOCKER COMPOSE  ----------------------- #
+
+# DOCKER COMPOSE (YA SE ECUENTRA INCLUIDA CON LA INSTALACIÓN DE DOCKER DESKTOP)
+
+Docker Compose es una herramienta de código abierto que permite definir y ejecutar 
+aplicaciones de Docker de varios contenedores. 
+
+Docker Compose simplifica el proceso de definición y 
+ejecución de aplicaciones multicontenedor. Permite trabajar con varios contenedores 
+de forma simultánea, haciendo que estos se conecten y relacionen entre sí.
+
+Docker Compose utiliza un archivo YAML para configurar los servicios de la aplicación.
+La configuración se guarda en un único archivo YAML, lo que permite crear y escalar 
+aplicaciones fácilmente. 
+Docker Compose surge porque muchas aplicaciones requieren de más de un microservicio.
+
+1) Crear un nuevo archivo con el nombre: docker-compose.yml
+   y agregar lo siguiente:
+   #  DEBES RESPETAR LA IDENTACIÓN (TABULACIÓN) QUE TIENE EL CPODIGO DE ABAJO
+
+#yanl nuevo lenguaje de configuración
+version: '3.9' #indicamos la versión
+services: 
+  cochinito:
+    build: .
+    ports:
+      - "3000:3000"    #puerto-anfitrión:contenedor si quieres agregar un nuevo puerto lo puedes hacer abajo
+    links:             # el nombre del contenedor que queremos mapear en este caso monguito
+      - monguito
+  monguito:
+    image: mongo   #indicamos a que imagen debe crearse el contenedor (en este caso usamos mongo)
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=jesua
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+
+# NOTA UNA VEZ CREADO EL ARCHIVO GUARDAR, Y EN LA TERMINAL ESCRBIR LO SIGUIENTE:
+
+2) # DESPUÉS DE CREAR DOCKER COMPOSE 
+  comando en la terminal: docker compose up
+
+# VOLVER A LA APP localhost:3000 y ver en la terminal los logs (ojo debes tener tus contenedores iniciados: 
+# docker start monguito, docker start cochinito)
+# SI YA NO OCUPAMOS HAY QUE DENETER LOS SERVICIOS:
+ docker stop monguito
+ docker stop cochinito
+
+# VERIFICAMOS LA IMAGEN Y EL CONTENEDOR
+ docker images
+ docker ps -a 
+
+ # COMANDO PARA LIMPIAR TODO LO QUE EL CREO DOCKER COMPOSE (CONTENEDOR E IMAGENES)
+ docker compose down
+
+# ------------------ VOLUMENES ----------------------- #
+
+
+ # VOLUMES CUANDO CREAMOS UN CONTENEDOR VA A TENER UN SO (sistema operativo), UN SISTEMA DE ARCHIVOS Y ALMACENADA LA DATA
+ # PODEMOS DECIR SI O PODEMOS DECIR QUE NO
+ # SI TU DESARROLLAS EL CÓDIGO DE LA APLICACIÓN CON DOCKER, HAY UNA HERRAMIENTA LLAMADA VOLUMES
+ # TIENES TRES TIPOS DE VOLUMENES:
+ 1) ANONIMOS - NO LOS PODEMOS REFERENCIAR PARA QUE LOS UTILICE OTRO CONTENEDOR
+ 2) DE ANFITRION O HOST: TU DECIDES QUE CARPETA MONTAR Y DONDE MONTARLA
+ 3) NOMBRADO - IGUAL AL ANONIMO PERO TU PODRAS REFERENCIARLO A OTRO CONTENEDOR CON LA MISMA IMAGEN
+ 4) IR A LA CARPETA images -> volumes.png ver la imagen de volumenes
+
+AHORA DEBERAS VOLVER AL ARCHIVO DOCKER COMPOSE Y AL FINAL DE ENVIROMENT AGREGAR VOLUMES: 
+
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=jesua
+      - MONGO_INITDB_ROOT_PASSWORD=password
+#indicarle al contenedor monguito los volumenes que va a poder utilizar
+    volumes:
+      - mongo-data: /data/db    #googlear: where mongodb store data base
+      # mysql -> /var/lib/mysql
+      # postgres -> /var/lib/postgresql/data
+#todos los volumenes que va a utilizar nuestros contenedores    
+volumes:
+  mongo-data:
+
+
+# volver a ejecutar:
+ docker compose up
+
+# VOLVER A LA APP localhost:3000 Y LA APP DEBE SEGUIR FUNCIONANDO, DE ESTA MANERA NUESTROS DATOS PUEDEN PERSISTIR CON EL TIEMPO
+# SI LLEGAMOS A ELIMINAR NUESTROS CONTENEDORES.
+
+# CONFIGURAR MULTIPLES AMBIENTES DE DESARROLLO O PROUDICCIÓN  
+ POR LO GENERAL EL AMBIENTE DE DESARROLO Y DE PRODUCCIÓN SON TOTALMENTE DIFERENTES
+ PARA ESTO DEBEMOS CREAR EL SIGUIENTE ARCHIVO: Dockerfile.dev
+ y pegar lo siguiente:  
+# PARA ESTE CASO AGREGAMOS NODEMON EN VES DE USAR NODEJS (NOTA NO ES NECESARIO INSTALAR NODEMON EN NUESTRO PACKAGE.JSON LOCAL)
+
+FROM node:18
+
+RUN npm i -g nodemon
+RUN mkdir -p /home/app
+
+WORKDIR /home/app #INDICAMOS LA RUTA EN LA CUAL VAMOS A ESTAR TRABAJANDO
+
+RUN npm install
+
+
+EXPOSE 3000
+
+
+CMD ["nodemon", "index.js"]
+# CMD [ "npm", "run", "start"]
+
+
+# PARA ESTE CASO AGREGAMOS NODEMON Y GUARDAMOS 
+
+# DESPUES CREAMOS EL SIGUIENTE ARCHIVO LLAMADO:
+  docker-compose-dev.yml y pegamos lo siguiente:
+
+version: '3.9'
+services: 
+  cochinito:
+    build: 
+      context: . #ruta actual de docker-compose
+      dockerfile: Dockerfile.dev #LE INDICAMOS QUE LA IMAGEN LA CONSTRUYA EN DOCKERFILE.DEV
+    ports:
+      - "3000:3000"
+    links:
+      - monguito
+    volumes:
+      - .:/home/app #le indicamos que utilice un volume (en este caso vemos los volumenes anonimos)
+  monguito:
+    image: mongo 
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=jesua
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data: /data/db
+      # mysql -> /var/lib/mysql
+      # postgres -> /var/lib/postgresql/data
+      
+volumes:
+  mongo-data:
+
+# Y GUARDAMOS
+
+# Despues de configurar el docker-compose-dev.yml vamos a la terminal y escribimos
+# LA -f es una banderita para poder indicarle un archivo docker compose customizado 
+ejecutar: docker compose -f docker-compose-dev.yml up
+
+# VOLVER A LA APP localhost:3000 Y LA APP DEBE SEGUIR FUNCIONANDO
+DESPUES IR AL INDEX.JS 
+
+en agregar un animal agreguen 2 nuevos
+
+await Animalse.create({ tipo: 'Pumita', estado: 'Cazando' })
+await Animales.create({ tipo: 'Palomita', estado: 'Volando' })
+
+// en la terminal debes ver nodemon funcionando
