@@ -45,7 +45,10 @@ la capacidad para realizar tareas prácticas y la familiaridad con herramientas 
 
 6.1 ¿Qué es Docker Compose y para qué se utiliza?
 
-6.2 Crea un archivo docker-compose.yml para definir dos servicios: uno que utilice la imagen de MySQL y otro que utilice la imagen de WordPress. Asegúrate de especificar la red a la que pertenecerán ambos servicios.
+6.2 Crea un archivo docker-compose.yml para definir dos servicios: 
+uno que utilice la imagen de Mongo y otro que utilice la imagen de Node Version 14. 
+Asegúrate de especificar la red a la que pertenecerán ambos servicios.
+
 
 7)  Resolución de Problemas
    
