@@ -1,0 +1,21 @@
+#yml nuevo lenguaje de configuración
+version: '3.9' #indicamos la versión de sintaxis de Docker Compose que estás utilizando
+services: # define los servicios de la aplicación, EN ESTE CASO LA BASE DE DATOS Y EL SERVIDOR WEB
+  cochinito:
+    build: .
+    ports:
+      - "3000:3000"    #puerto-anfitrión:contenedor si quieres agregar un nuevo puerto lo puedes hacer abajo
+    links:             # el nombre del contenedor que queremos mapear en este caso monguito
+      - monguito
+  monguito:
+    image: mongo   #indicamos a que imagen debe crearse el contenedor (en este caso usamos mongo)
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=jesua
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+        # alumnos:
+  #   image: postgres 
+  # frontend:
+  #   image: vitess/bootstrap 
